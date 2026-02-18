@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Birthday Invitation + RSVP</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1724;
+  --card:linear-gradient(135deg,#2b2f71,#7b5cff);
+  --accent:#ffd166;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Montserrat",sans-serif;
+  background:var(--bg);
+  color:white;
+  display:flex;
+  justify-content:center;
+  padding:30px;
+}
+.container{
+  width:100%;
+  max-width:1000px;
+}
+nav{
+  display:flex;
+  gap:12px;
+  margin-bottom:20px;
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+}
+.btn-primary{
+  background:linear-gradient(90deg,#ffb86b,#ff7aa2);
+  color:#041025;
+}
+.btn-secondary{
+  background:rgba(255,255,255,0.1);
+  color:white;
+}
+.page{
+  display:none;
+}
+.page.active{
+  display:block;
+}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:40px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.name{
+  font-family:"Great Vibes",cursive;
+  font-size:60px;
+  margin:10px 0;
+}
+.details{
+  margin-top:15px;
+  font-size:18px;
+}
+input, textarea{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:10px;
+}
+.rsvp-box{
+  background:rgba(255,255,255,0.05);
+  padding:20px;
+  border-radius:16px;
+}
+.guest-list{
+  margin-top:15px;
+  text-align:left;
+}
+.guest{
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.link-box{
+  display:flex;
+  gap:8px;
+}
+.link-box input{
+  flex:1;
+}
+.small{
+  font-size:13px;
+  opacity:0.8;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<nav>
+  <button class="btn-primary" onclick="showPage('invite')">Invitation</button>
+  <button class="btn-secondary" onclick="showPage('rsvp')">RSVP</button>
+</nav>
+
+<!-- PAGE 1: INVITATION -->
+<div id="invite" class="page active">
+
+  <div class="card">
+    <h2>You're Invited 🎉</h2>
+    <div class="name" id="displayName">Aisha's Birthday</div>
+    <div class="details" id="displayDetails">
+      📅 25th July 2026<br/>
+      📍 Mumbai<br/>
+      ⏰ 6:00 PM
+    </div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <h3>Create Shareable Link</h3>
+
+    <input id="eventName" placeholder="Event Title (e.g. Aisha's Birthday)" value="Aisha's Birthday"/>
+    <input id="eventDate" placeholder="Date (e.g. 25th July 2026)" value="25th July 2026"/>
+    <input id="eventLocation" placeholder="Location (e.g. Mumbai)" value="Mumbai"/>
+    <input id="eventTime" placeholder="Time (e.g. 6:00 PM)" value="6:00 PM"/>
+
+    <button class="btn-primary" onclick="generateLink()">Generate Link</button>
+
+    <div class="link-box" style="margin-top:10px;">
+      <input id="shareLink" readonly/>
+      <button class="btn-secondary" onclick="copyLink()">Copy</button>
+    </div>
+
+    <div class="small">Share this link — it auto-fills the invitation page.</div>
+  </div>
+
+</div>
+
+<!-- PAGE 2: RSVP -->
+<div id="rsvp" class="page">
+
+  <div class="rsvp-box">
+    <h2>RSVP 💌</h2>
+
+    <input id="guestName" placeholder="Your Name"/>
+    <textarea id="guestMessage" placeholder="Message (optional)"></textarea>
+
+    <button class="btn-primary" onclick="submitRSVP()">Submit RSVP</button>
+
+    <div class="guest-list" id="guestList"></div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+
+/* -------------------------
+   PAGE SWITCHING
+------------------------- */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* -------------------------
+   SHAREABLE LINK GENERATOR
+------------------------- */
+function generateLink(){
+  const name = encodeURIComponent(document.getElementById("eventName").value);
+  const date = encodeURIComponent(document.getElementById("eventDate").value);
+  const loc = encodeURIComponent(document.getElementById("eventLocation").value);
+  const time = encodeURIComponent(document.getElementById("eventTime").value);
+
+  const url = `${window.location.origin}${window.location.pathname}?name=${name}&date=${date}&loc=${loc}&time=${time}`;
+  document.getElementById("shareLink").value = url;
+}
+
+function copyLink(){
+  const input = document.getElementById("shareLink");
+  input.select();
+  document.execCommand("copy");
+  alert("Link copied!");
+}
+
+/* -------------------------
+   LOAD DATA FROM URL
+------------------------- */
+function loadFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.has("name")){
+    document.getElementById("displayName").innerText = params.get("name");
+  }
+  if(params.has("date")){
+    document.getElementById("displayDetails").innerHTML =
+      `📅 ${params.get("date")}<br/>`+
+      `📍 ${params.get("loc")}<br/>`+
+      `⏰ ${params.get("time")}`;
+  }
+}
+loadFromURL();
+
+/* -------------------------
+   RSVP STORAGE
+------------------------- */
+function submitRSVP(){
+  const name = document.getElementById("guestName").value.trim();
+  const msg = document.getElementById("guestMessage").value.trim();
+  if(!name) return alert("Please enter your name");
+
+  const guests = JSON.parse(localStorage.getItem("guests") || "[]");
+  guests.push({name, msg});
+  localStorage.setItem("guests", JSON.stringify(guests));
+
+  document.getElementById("guestName").value="";
+  document.getElementById("guestMessage").value="";
+  renderGuests();
+}
+
+function renderGuests(){
+  const guests = JSON.parse(localStorage.getItem("guests") || "[]");
+  const list = document.getElementById("guestList");
+  list.innerHTML="";
+  guests.forEach(g=>{
+    const div=document.createElement("div");
+    div.className="guest";
+    div.innerHTML=`<strong>${g.name}</strong><br/><span class="small">${g.msg}</span>`;
+    list.appendChild(div);
+  });
+}
+renderGuests();
+
+</script>
+
+</body>
+                                                                   </html>
