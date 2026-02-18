@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Birthday Wishes — Make a Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1724;
+    --card-bg:linear-gradient(135deg,#2b2f71 0%, #7b5cff 100%);
+    --accent:#ffd166;
+    --muted:rgba(255,255,255,0.85);
+    --glass: rgba(255,255,255,0.06);
+    --radius:18px;
+    --card-w:720px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: "Montserrat",system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background:
+      radial-gradient(800px 400px at 10% 10%, rgba(255,255,255,0.03), transparent 10%),
+      radial-gradient(700px 350px at 90% 90%, rgba(255,255,255,0.02), transparent 10%),
+      var(--bg);
+    color:var(--muted);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:32px;
+    display:flex;
+    gap:24px;
+    align-items:flex-start;
+    justify-content:center;
+    min-height:100vh;
+  }
+
+  .container{
+    max-width:1200px;
+    width:100%;
+    display:grid;
+    grid-template-columns: 420px 1fr;
+    gap:28px;
+    align-items:start;
+  }
+
+  /* LEFT PANEL - controls */
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  .logo{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .logo .emoji{font-size:28px; transform:translateY(-1px)}
+  .logo h1{font-size:18px; margin:0; font-weight:700}
+  .lead{color:#cbd5e1;font-size:14px;margin-bottom:12px}
+
+  label{display:block;font-size:13px;margin:12px 0 6px;color:#e6eef8}
+  input[type="text"], textarea, select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.05);
+    background:rgba(255,255,255,0.02);
+    color:var(--muted);
+    font-size:14px;
+    outline:none;
+  }
+  textarea{min-height:110px; resize:vertical}
+
+  .row{display:flex; gap:10px}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:10px 14px;border-radius:12px;
+    background:linear-gradient(90deg,#ffb86b,#ff7aa2);
+    color:#041025;font-weight:700;border:0;cursor:pointer;
+    box-shadow:0 8px 20px rgba(255,122,162,0.14);
+  }
+  .btn.secondary{
+    background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
+    box-shadow:none;font-weight:600;
+  }
+
+  .themes{
+    display:flex; gap:10px; margin-top:8px;
+  }
+  .theme-swatch{
+    width:58px;height:48px;border-radius:12px;cursor:pointer;flex-shrink:0;
+    border:2px solid transparent; box-shadow:0 6px 18px rgba(2,6,23,0.6);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;
+  }
+  .theme-swatch.active{outline:3px solid rgba(255,255,255,0.06)}
+
+  /* RIGHT - preview */
+  .preview-wrap{
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .preview{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:420px;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  .card{
+    width:100%;
+    max-width:var(--card-w);
+    height:420px;
+    border-radius:14px;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    color: #fff;
+    box-shadow: 0 20px 60px rgba(2,6,23,0.6);
+  }
+
+  /* sample text styles inside the card */
+  .card .greeting{
+    text-align:center;
+    pointer-events:none;
+  }
+  .card .to{font-family:"Montserrat"; text-transform:uppercase; font-weight:800; letter-spacing:1px; font-size:14px; opacity:0.95}
+  .card .name{font-family:"Great Vibes",cursive; font-size:56px; margin:6px 0; text-shadow:0 6px 20px rgba(0,0,0,0.35)}
+  .card .message{font-size:18px; max-width:80%; margin:12px auto 0; opacity:0.95; line-height:1.35}
+
+  .controls-bottom{display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:6px}
+  .small{font-size:13px;color:#9fb0d4}
+
+  /* Theme presets */
+  .t-default{ --card-bg: linear-gradient(135deg,#2b2f71 0%, #7b5cff 100%); --accent:#ffd166; }
+  .t-sun{ --card-bg: linear-gradient(135deg,#FFB677 0%, #FF7E6B 100%); --accent:#2b2f71; --card-text:#2b2f71; }
+  .t-forest{ --card-bg: linear-gradient(135deg,#0ba360 0%, #3cba92 100%); --accent:#fff8c7; --card-text:#05361a }
+
+  /* confetti canvas place */
+  canvas.confetti{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+  /* responsive */
+  @media (max-width:980px){
+    .container{grid-template-columns:1fr; padding-bottom:20px}
+    .preview{order: -1}
+    .card{height:360px}
+  }
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel" aria-labelledby="panelTitle">
+      <div class="logo">
+        <div class="emoji">🎂</div>
+        <div>
+          <h1 id="panelTitle">Birthday Wishes Maker</h1>
+          <div class="small">Create, preview & download a beautiful birthday card.</div>
+        </div>
+      </div>
+
+      <div class="lead">Customize the card on the right — live preview updates as you type.</div>
+
+      <label for="recipient">Recipient name</label>
+      <input id="recipient" type="text" value="Aisha" placeholder="e.g. Aisha" />
+
+      <label for="message">Message</label>
+      <textarea id="message">Wishing you a day filled with love, laughter, and cake. Happy Birthday!</textarea>
+
+      <label for="from">From (your name)</label>
+      <input id="from" type="text" value="— From Rahul" />
+
+      <label>Themes</label>
+      <div class="themes" role="tablist" aria-label="Themes">
+        <div class="theme-swatch theme-default active" data-theme="t-default" title="Violet"> <span>Vi</span> </div>
+        <div class="theme-swatch theme-sun" data-theme="t-sun" style="background:linear-gradient(135deg,#FFB677,#FF7E6B)"> <span>Su</span> </div>
+        <div class="theme-swatch theme-forest" data-theme="t-forest" style="background:linear-gradient(135deg,#0ba360,#3cba92)"> <span>Fo</span> </div>
+      </div>
+
+      <label style="margin-top:10px">Decorations</label>
+      <div class="row" style="margin-bottom:6px">
+        <button id="confettiBtn" class="btn secondary">🎊 Toggle Confetti</button>
+        <button id="musicBtn" class="btn">♪ Play Tune</button>
+      </div>
+
+      <label style="margin-top:10px">Download / Share</label>
+      <div class="row">
+        <button id="downloadBtn" class="btn">⬇️ Download PNG</button>
+        <button id="shareBtn" class="btn secondary">🔗 Share</button>
+      </div>
+
+      <div style="margin-top:12px" class="small">Tip: Use large recipient name for dramatic effect. Works offline — no external libs.</div>
+    </div>
+
+    <div class="preview-wrap">
+      <div class="preview">
+        <!-- Card area -->
+        <div class="card t-default" id="cardRoot" role="img" aria-label="Birthday card preview">
+          <!-- background shapes -->
+          <canvas class="confetti" id="confettiCanvas" width="1200" height="600" aria-hidden="true"></canvas>
+
+          <!-- preview content is also mirrored on a separate canvas for download -->
+          <div class="greeting" id="cardContent" style="z-index:2; text-align:center; padding:8px;">
+            <div class="to">Happy Birthday</div>
+            <div class="name" id="previewName">Aisha</div>
+            <div class="message" id="previewMessage">Wishing you a day filled with love, laughter, and cake. Happy Birthday!</div>
+            <div class="from small" id="previewFrom" style="margin-top:18px; opacity:0.9">— From Rahul</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">
+        <div class="small">Preview size: <strong>720×420</strong></div>
+        <div class="controls-bottom">
+          <button id="renderBtn" class="btn secondary">🖼️ Refresh & Download</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/*
+  Birthday Wishes Maker — single file
+  Features implemented:
+    - Theme switching (CSS classes)
+    - Live preview of name/message/from
+    - Confetti particle system (canvas)
+    - Simple WebAudio melody generator (play/pause)
+    - Render card to PNG using offscreen canvas (same look as preview)
+    - Share via navigator.share
+*/
+
+(() => {
+  // Elements
+  const recipientInput = document.getElementById('recipient');
+  const messageInput = document.getElementById('message');
+  const fromInput = document.getElementById('from');
+  const previewName = document.getElementById('previewName');
+  const previewMessage = document.getElementById('previewMessage');
+  const previewFrom = document.getElementById('previewFrom');
+  const cardRoot = document.getElementById('cardRoot');
+  const themeSwatches = document.querySelectorAll('.theme-swatch');
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const confettiBtn = document.getElementById('confettiBtn');
+  const musicBtn = document.getElementById('musicBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const renderBtn = document.getElementById('renderBtn');
+  const cardContent = document.getElementById('cardContent');
+
+  // Live update handlers
+  const updatePreview = () => {
+    previewName.textContent = recipientInput.value || 'Friend';
+    previewMessage.textContent = messageInput.value || 'Wishing you the best!';
+    previewFrom.textContent = fromInput.value || '';
+  };
+  recipientInput.addEventListener('input', updatePreview);
+  messageInput.addEventListener('input', updatePreview);
+  fromInput.addEventListener('input', updatePreview);
+  updatePreview();
+
+  // Theme switching
+  themeSwatches.forEach(s => {
+    s.addEventListener('click', () => {
+      themeSwatches.forEach(x=>x.classList.remove('active'));
+      s.classList.add('active');
+      const theme = s.dataset.theme || 't-default';
+      // replace classes on cardRoot
+      cardRoot.classList.remove('t-default','t-sun','t-forest');
+      cardRoot.classList.add(theme);
+
+      // also update some inline style properties for variety (optional)
+      if(theme==='t-sun'){
+        cardRoot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg') || 'linear-gradient(135deg,#FFB677,#FF7E6B)';
+      } else if(theme==='t-forest'){
+        cardRoot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg') || 'linear-gradient(135deg,#0ba360,#3cba92)';
+      } else {
+        cardRoot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--card-bg') || 'linear-gradient(135deg,#2b2f71,#7b5cff)';
+      }
+    });
+  });
+
+  // Initialize default background using CSS variable
+  cardRoot.style.background = getComputedStyle(cardRoot).getPropertyValue('--card-bg') || '';
+
+  /* ---------------------------
+     Confetti system (canvas)
+     --------------------------- */
+  const ctx = confettiCanvas.getContext('2d');
+  let confettiRunning = false;
+  let confettiParticles = [];
+  let confettiTimer = null;
+
+  function resizeConfetti() {
+    // scale canvas for device pixel ratio
+    const rect = confettiCanvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    confettiCanvas.width = rect.width * dpr;
+    confettiCanvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resizeConfetti);
+  resizeConfetti();
+
+  function random(min, max){ return Math.random() * (max - min) + min; }
+
+  function spawnConfettiBurst(x, y, count=30) {
+    for (let i=0;i<count;i++){
+      confettiParticles.push({
+        x: x + random(-20,20),
+        y: y + random(-10,10),
+        vx: random(-6,6),
+        vy: random(-10,-2),
+        size: random(6,14),
+        color: `hsl(${Math.floor(random(0,360))} 80% 60%)`,
+        rot: random(0,360),
+        spin: random(-0.2,0.4),
+        life: random(60,140)
+      });
+    }
+  }
+
+  function stepConfetti() {
+    ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    // gravity
+    for (let i = confettiParticles.length-1; i >= 0; i--) {
+      const p = confettiParticles[i];
+      p.vy += 0.25;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.spin;
+      p.life -= 1;
+      // draw rectangle rotated
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
+
+      if (p.y > confettiCanvas.height / (window.devicePixelRatio||1) + 50 || p.life <= 0) {
+        confettiParticles.splice(i,1);
+      }
+    }
+    if (confettiRunning || confettiParticles.length>0) {
+      confettiTimer = requestAnimationFrame(stepConfetti);
+    } else {
+      cancelAnimationFrame(confettiTimer);
+      confettiTimer = null;
+      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    }
+  }
+
+  confettiBtn.addEventListener('click', () => {
+    confettiRunning = !confettiRunning;
+    confettiBtn.textContent = confettiRunning ? '🎊 Confetti On' : '🎊 Toggle Confetti';
+    if (confettiRunning) {
+      resizeConfetti();
+      spawnConfettiBurst(confettiCanvas.width/ (2*(window.devicePixelRatio||1)), 40, 60);
+      stepConfetti();
+      // periodic bursts
+      confettiInterval = setInterval(()=> spawnConfettiBurst(random(80, confettiCanvas.width/(window.devicePixelRatio||1)-80), random(20,120), 40), 900);
+    } else {
+      clearInterval(confettiInterval);
+      confettiInterval = null;
+    }
+  });
+  let confettiInterval = null;
+
+  /* ---------------------------
+     WebAudio melody (no external files)
+     --------------------------- */
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+  let isPlaying = false;
+  let toneOsc = null;
+  let toneGain = null;
+  let melodyTimer = null;
+
+  const melodyNotes = [ 440, 494, 523, 659, 587, 523, 494, 440 ]; // A B C E D C B A (simple)
+  function startMelody() {
+    if (!AudioContext) return alert('Audio not supported in this browser.');
+    audioCtx = audioCtx || new AudioContext();
+    toneGain = audioCtx.createGain();
+    toneGain.gain.value = 0.0001;
+    toneGain.connect(audioCtx.destination);
+    let i = 0;
+    function playStep() {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = melodyNotes[i % melodyNotes.length];
+      const g = audioCtx.createGain();
+      g.gain.value = 0;
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start();
+      // envelope
+      g.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      osc.stop(audioCtx.currentTime + 0.6);
+      i++;
+      melodyTimer = setTimeout(playStep, 420);
+    }
+    playStep();
+    isPlaying = true;
+    musicBtn.textContent = '⏸️ Pause Tune';
+  }
+
+  function stopMelody() {
+    if (melodyTimer) clearTimeout(melodyTimer);
+    melodyTimer = null;
+    isPlaying = false;
+    musicBtn.textContent = '♪ Play Tune';
+  }
+
+  musicBtn.addEventListener('click', () => {
+    if (!isPlaying) startMelody(); else stopMelody();
+  });
+
+  /* ---------------------------
+     Download card as PNG (render on offscreen canvas)
+     --------------------------- */
+  function renderCardToCanvas(width=720, height=420) {
+    // Create an offscreen canvas and draw the same look as preview
+    const canvas = document.createElement('canvas');
+    const dpr = 1; // produce 1x for download, users can get high-res by tweaking
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    const c = canvas.getContext('2d');
+
+    // Read current theme background computed style from cardRoot
+    const style = getComputedStyle(cardRoot);
+    // Try to draw a gradient similar to background
+    // Use CSS variable --card-bg if present else fallback
+    const cssBg = style.backgroundImage || style.background;
+    // Basic fallback gradient parsing (we'll just draw a general gradient)
+    const g = c.createLinearGradient(0,0,canvas.width,canvas.height);
+    // Choose stops from computed colors (approx)
+    // We'll map based on cardRoot class
+    if (cardRoot.classList.contains('t-sun')) {
+      g.addColorStop(0, '#FFB677'); g.addColorStop(1, '#FF7E6B');
+    } else if (cardRoot.classList.contains('t-forest')) {
+      g.addColorStop(0, '#0ba360'); g.addColorStop(1, '#3cba92');
+    } else {
+      g.addColorStop(0, '#2b2f71'); g.addColorStop(1, '#7b5cff');
+    }
+    c.fillStyle = g;
+    c.fillRect(0,0,canvas.width,canvas.height);
+
+    // decorative shapes (soft glow circles)
+    c.globalAlpha = 0.12;
+    c.fillStyle = '#ffffff';
+    c.beginPath();
+    c.ellipse(canvas.width*0.12, canvas.height*0.2, 140, 80, 0,0,Math.PI*2);
+    c.fill();
+    c.beginPath();
+    c.ellipse(canvas.width*0.86, canvas.height*0.82, 180, 100, 0,0,Math.PI*2);
+    c.fill();
+    c.globalAlpha = 1;
+
+    // text drawing
+    // Title
+    c.fillStyle = '#fff';
+    c.font = '700 18px Montserrat, sans-serif';
+    c.textAlign = 'center';
+    c.fillText('Happy Birthday', canvas.width/2, canvas.height*0.32);
+
+    // Name (script-like)
+    // Use "Great Vibes" fallback; if not available, use serif-like
+    c.font = 'bold 56px "Great Vibes", serif';
+    c.fillStyle = '#fff';
+    // shadow
+    c.shadowColor = 'rgba(0,0,0,0.35)';
+    c.shadowBlur = 16;
+    c.fillText(previewName.textContent, canvas.width/2, canvas.height*0.48);
+
+    // Message
+    c.shadowBlur = 0;
+    c.font = '16px Montserrat, sans-serif';
+    c.fillStyle = 'rgba(255,255,255,0.95)';
+    // wrap text
+    const msg = previewMessage.textContent;
+    wrapText(c, msg, canvas.width/2, canvas.height*0.62, canvas.width*0.7, 22);
+
+    // From
+    c.font = '14px Montserrat, sans-serif';
+    c.fillStyle = 'rgba(255,255,255,0.9)';
+    c.fillText(previewFrom.textContent, canvas.width/2, canvas.height*0.78);
+
+    return canvas;
+  }
+
+  // Helper to wrap text centered
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    const lines = [];
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        lines.push(line.trim());
+        line = words[n] + ' ';
+      } else {
+        line = testLine;
+      }
+    }
+    lines.push(line.trim());
+    for (let i=0;i<lines.length;i++){
+      ctx.fillText(lines[i], x, y + (i * lineHeight));
+    }
+  }
+
+  downloadBtn.addEventListener('click', () => {
+    // small animation burst
+    spawnConfettiBurst(confettiCanvas.width/(2*(window.devicePixelRatio||1)), 40, 60);
+    if (!confettiTimer) stepConfetti();
+
+    const out = renderCardToCanvas(1280, 720); // high res download
+    out.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `birthday-${(recipientInput.value||'friend').replace(/\s+/g,'_')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  });
+
+  // Render button duplicates download behavior (but also refresh)
+  renderBtn.addEventListener('click', () => {
+    // force a preview refresh
+    updatePreview();
+    downloadBtn.click();
+  });
+
+  // Share API
+  shareBtn.addEventListener('click', async () => {
+    // try native share with a small image
+    try {
+      const canvas = renderCardToCanvas(1024, 576);
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      const filesArray = [
+        new File([blob], 'birthday.png', { type: 'image/png' })
+    
